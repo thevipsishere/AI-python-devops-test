@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing Docker...
+      - yum update -y
+      - yum install -y docker
+      - docker --version
+      - docker info
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 471112874312.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t frontend ./frontend
+      - docker build -t backend ./backend
+      - docker tag frontend:latest 471112874312.dkr.ecr.us-east-1.amazonaws.com/project:latest
+      - docker tag backend:latest 471112874312.dkr.ecr.us-east-1.amazonaws.com/project:latest
+  post_build:
+    commands:
+      - echo Pushing the Docker images...
+      - docker push 471112874312.dkr.ecr.us-east-1.amazonaws.com/project:latest
+      - docker push 471112874312.dkr.ecr.us-east-1.amazonaws.com/project:latest
+      - echo Build completed on `date`
